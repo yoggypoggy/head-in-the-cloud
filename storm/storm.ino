@@ -47,9 +47,9 @@ const uint8_t  BASE_CALM_CHANCE                = 95;  // 5% crackle at level 0
 const uint8_t  CALM_CHANCE_REDUCTION_PER_LEVEL = 2;   // 35% calm at max → 65% crackle
 
 // Cloud colour (storm)
-const uint8_t  CLOUD_R = 40;
-const uint8_t  CLOUD_G = 10;
-const uint8_t  CLOUD_B = 80;
+const uint8_t  CLOUD_R = 60;
+const uint8_t  CLOUD_G = 20;
+const uint8_t  CLOUD_B = 120;
 
 // ======================================================
 //                    FLASH CONFIG
@@ -471,6 +471,9 @@ class LightningEffect {
     bool isStormMode() {
        return stormActive && !glitchMode;
       }
+    bool isGlitchMode() {
+      return glitchMode;
+    }
 
   // ====================================================
   private:
@@ -884,7 +887,7 @@ void loop() {
       serialBuffer += c;
     }
   }
-
+  if (storm.isGlitchMode()) {
   // ---- ENCODER 1 ----
   enc1AState = digitalRead(outputA1);
   if (enc1AState != enc1ALastState) storm.notifyEncoderTurn(1);
@@ -894,6 +897,7 @@ void loop() {
   enc2AState = digitalRead(outputA2);
   if (enc2AState != enc2ALastState) storm.notifyEncoderTurn(2);
   enc2ALastState = enc2AState;
+  }
 
   if (storm.isStormMode() && millis() - lastDistanceCheckMs >= DISTANCE_CHECK_INTERVAL_MS) {
   lastDistanceCheckMs = millis();
