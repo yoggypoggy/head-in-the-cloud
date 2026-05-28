@@ -72,7 +72,7 @@ const uint8_t       AUTO_FLASH_MAX_CHANCE  = 55;  // % at full intensity
 // ======================================================
 
 const uint8_t  SUNSET_MAX_BRIGHTNESS  = 200;
-const int          ENCODER_FULL_STEPS      = 180;
+const int          ENCODER_FULL_STEPS      = 160;
 const int          ENCODER_SINGLE_STEP     = 0;
 const int          ENCODER_DUAL_STEP       = 1;
 const unsigned long DUAL_ENCODER_WINDOW_MS = 150;
@@ -128,17 +128,15 @@ const unsigned long GLITCH_BEAT_PAUSE_MS         = 700;  // pause after ba-bump 
 const unsigned long GLITCH_BEAT_PAUSE_CHAOTIC_MS = 40;  // shorter pause in chaotic mode (was GLITCH_CHAOTIC range)
 
 // Sunset-colour flash durations (during active twist AND post-nth-twist idle)
-const unsigned long GLITCH_FLASH_MIN_MS = 150;
+const unsigned long GLITCH_FLASH_MIN_MS = 200;
 const unsigned long GLITCH_FLASH_MAX_MS = 400;
+
+const unsigned long GLITCH_IDLE_SUNSET_START_MS = 1600;  // interval at 0 twists
+const unsigned long GLITCH_IDLE_SUNSET_END_MS   = 400;   // interval at max twists
 
 // Gap between idle sunset flashes once glitch stage is complete
 const unsigned long GLITCH_IDLE_SUNSET_MIN_MS = 500;
 const unsigned long GLITCH_IDLE_SUNSET_MAX_MS = 1000;
-
-// Orangey-pink sunset colour for glitch flashes (palette index 2)
-const uint8_t GLITCH_SUNSET_COLOUR_R = 255;
-const uint8_t GLITCH_SUNSET_COLOUR_G = 120;
-const uint8_t GLITCH_SUNSET_COLOUR_B = 80;
 
 // ======================================================
 //                  LIGHTNING EFFECT
@@ -574,9 +572,10 @@ class LightningEffect {
             glitchIdleFlashTimer  = now + random(GLITCH_FLASH_MIN_MS,
                                                  GLITCH_FLASH_MAX_MS + 1);
           } else {
-            glitchIdleFlashActive = false;
-            glitchIdleFlashTimer  = now + random(GLITCH_IDLE_SUNSET_MIN_MS,
-                                                 GLITCH_IDLE_SUNSET_MAX_MS + 1);
+            float t = min(1.0f, glitchTwistsDone / (float)GLITCH_N_TWISTS);
+            unsigned long interval = (unsigned long)(GLITCH_IDLE_SUNSET_START_MS
+                                     + t * (long)(GLITCH_IDLE_SUNSET_END_MS - GLITCH_IDLE_SUNSET_START_MS));
+            glitchIdleFlashTimer = now + interval;
           }
         }
 
@@ -647,11 +646,12 @@ class LightningEffect {
 }
 
 void renderSunsetFlashColour() {
-  float    scale = SUNSET_MAX_BRIGHTNESS / 255.0f;
-  uint32_t c     = strip.Color(
-    (uint8_t)(GLITCH_SUNSET_COLOUR_R * scale),
-    (uint8_t)(GLITCH_SUNSET_COLOUR_G * scale),
-    (uint8_t)(GLITCH_SUNSET_COLOUR_B * scale)
+  float scale = SUNSET_MAX_BRIGHTNESS / 255.0f;
+  int idx = random(0, SUNSET_PALETTE_COUNT);
+  uint32_t c = strip.Color(
+    (uint8_t)(SUNSET_R[idx] * scale),
+    (uint8_t)(SUNSET_G[idx] * scale),
+    (uint8_t)(SUNSET_B[idx] * scale)
   );
   for (uint16_t i = 0; i < NUM_LEDS; i++) strip.setPixelColor(i, applyScale(c));
 }
