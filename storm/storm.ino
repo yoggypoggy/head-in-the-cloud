@@ -48,7 +48,7 @@ const uint8_t  CALM_CHANCE_REDUCTION_PER_LEVEL = 2;   // 35% calm at max → 65%
 
 // Cloud colour (storm)
 const uint8_t  CLOUD_R = 40;
-const uint8_t  CLOUD_G = 20;
+const uint8_t  CLOUD_G = 10;
 const uint8_t  CLOUD_B = 80;
 
 // ======================================================
@@ -72,10 +72,9 @@ const uint8_t       AUTO_FLASH_MAX_CHANCE  = 55;  // % at full intensity
 // ======================================================
 
 const uint8_t  SUNSET_MAX_BRIGHTNESS  = 200;
-
-const int          ENCODER_FULL_STEPS      = 200;
-const int          ENCODER_SINGLE_STEP     = 1;
-const int          ENCODER_DUAL_STEP       = 2;
+const int          ENCODER_FULL_STEPS      = 300;
+const int          ENCODER_SINGLE_STEP     = 0;
+const int          ENCODER_DUAL_STEP       = 1;
 const unsigned long DUAL_ENCODER_WINDOW_MS = 150;
 
 // How far the hue map shifts per encoder step (drives colour flow)
@@ -85,9 +84,9 @@ const float SUNSET_LED_SPREAD   = 5.0f;
 
 // Warm sunset palette (pink → orange → coral → magenta → amber)
 const uint8_t SUNSET_PALETTE_COUNT   = 5;
-const uint8_t SUNSET_R[5] = { 255, 230, 255, 200, 255 };
-const uint8_t SUNSET_G[5] = {  80,  90, 120,  60, 150 };
-const uint8_t SUNSET_B[5] = {  20,  50,  80, 120,  70 };
+const uint8_t SUNSET_R[5] = { 255, 230, 255, 200, 140 };
+const uint8_t SUNSET_G[5] = {  80,  90, 120,  60, 210 };
+const uint8_t SUNSET_B[5] = {  20,  50,  80, 120, 200 };
 
 // ======================================================
 //                    PULSE CONFIG
@@ -103,7 +102,7 @@ const unsigned long ENCODER_IDLE_MS         = 400;
 // ======================================================
 const unsigned long DISTANCE_CHECK_INTERVAL_MS = 1000;
 const int           DISTANCE_TRIGGER_CM        = 10;
-const uint8_t       PROXIMITY_ALERT_BRIGHTNESS = 250;
+const uint8_t       PROXIMITY_ALERT_BRIGHTNESS = 180;
 
 // ======================================================
 //                    GLITCH CONFIG
