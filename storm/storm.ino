@@ -101,7 +101,7 @@ const unsigned long ENCODER_IDLE_MS         = 400;
 //                    PROXIMITY CONFIG
 // ======================================================
 const unsigned long DISTANCE_CHECK_INTERVAL_MS = 1000;
-const int           DISTANCE_TRIGGER_CM        = 10;
+const int           DISTANCE_TRIGGER_CM        = 20;
 const uint8_t       PROXIMITY_ALERT_BRIGHTNESS = 180;
 
 // ======================================================
@@ -131,7 +131,7 @@ const unsigned long GLITCH_BEAT_PAUSE_CHAOTIC_MS = 40;  // shorter pause in chao
 const unsigned long GLITCH_FLASH_MIN_MS = 200;
 const unsigned long GLITCH_FLASH_MAX_MS = 400;
 
-const unsigned long GLITCH_IDLE_SUNSET_START_MS = 1600;  // interval at 0 twists
+const unsigned long GLITCH_IDLE_SUNSET_START_MS = 2000;  // interval at 0 twists
 const unsigned long GLITCH_IDLE_SUNSET_END_MS   = 400;   // interval at max twists
 
 // Gap between idle sunset flashes once glitch stage is complete
@@ -512,6 +512,8 @@ class LightningEffect {
     uint8_t       glitchBeatPhase  = 0;
     unsigned long glitchBeatTimer  = 0;
 
+    uint8_t glitchSunsetFlashIdx = 0;
+
     // Twist detection
     int           enc1TickAccum    = 0;
     int           enc2TickAccum    = 0;
@@ -569,9 +571,11 @@ class LightningEffect {
         if (now >= glitchIdleFlashTimer) {
           if (!glitchIdleFlashActive) {
             glitchIdleFlashActive = true;
+            glitchSunsetFlashIdx  = random(0, SUNSET_PALETTE_COUNT);
             glitchIdleFlashTimer  = now + random(GLITCH_FLASH_MIN_MS,
                                                  GLITCH_FLASH_MAX_MS + 1);
           } else {
+            glitchIdleFlashActive = false;
             float t = min(1.0f, glitchTwistsDone / (float)GLITCH_N_TWISTS);
             unsigned long interval = (unsigned long)(GLITCH_IDLE_SUNSET_START_MS
                                      + t * (long)(GLITCH_IDLE_SUNSET_END_MS - GLITCH_IDLE_SUNSET_START_MS));
@@ -597,10 +601,11 @@ class LightningEffect {
 
       if (activeTwisting) {
         // Alternate between sunset colour and glitch at ~200-400ms
-        if (now >= glitchFlashTimer) {
-          glitchFlashSunset = !glitchFlashSunset;
-          glitchFlashTimer  = now + random(GLITCH_FLASH_MIN_MS, GLITCH_FLASH_MAX_MS + 1);
-        }
+if (now >= glitchFlashTimer) {
+  glitchFlashSunset = !glitchFlashSunset;
+  glitchFlashTimer  = now + random(GLITCH_FLASH_MIN_MS, GLITCH_FLASH_MAX_MS + 1);
+  if (glitchFlashSunset) {glitchSunsetFlashIdx = random(0, SUNSET_PALETTE_COUNT);}
+}
         if (glitchFlashSunset) {
           renderSunsetFlashColour();
           strip.show();
@@ -649,9 +654,9 @@ void renderSunsetFlashColour() {
   float scale = SUNSET_MAX_BRIGHTNESS / 255.0f;
   int idx = random(0, SUNSET_PALETTE_COUNT);
   uint32_t c = strip.Color(
-    (uint8_t)(SUNSET_R[idx] * scale),
-    (uint8_t)(SUNSET_G[idx] * scale),
-    (uint8_t)(SUNSET_B[idx] * scale)
+    (uint8_t)(SUNSET_R[glitchSunsetFlashIdx] * scale),
+    (uint8_t)(SUNSET_G[glitchSunsetFlashIdx] * scale),
+    (uint8_t)(SUNSET_B[glitchSunsetFlashIdx] * scale)
   );
   for (uint16_t i = 0; i < NUM_LEDS; i++) strip.setPixelColor(i, applyScale(c));
 }
