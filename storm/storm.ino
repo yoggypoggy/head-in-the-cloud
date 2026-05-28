@@ -79,7 +79,7 @@ const int          ENCODER_DUAL_STEP       = 2;
 const unsigned long DUAL_ENCODER_WINDOW_MS = 150;
 
 // How far the hue map shifts per encoder step (drives colour flow)
-const float SUNSET_HUE_PER_STEP = 0.02f;
+const float SUNSET_HUE_PER_STEP = 0.01f;
 // How many palette units span the full LED strip
 const float SUNSET_LED_SPREAD   = 5.0f;
 
@@ -94,15 +94,15 @@ const uint8_t SUNSET_B[5] = {  20,  50,  80, 120,  70 };
 // ======================================================
 
 const float        PULSE_DEPTH              = 0.38f;
-const unsigned long STORM_PULSE_PERIOD_MS   = 1000;
+const unsigned long STORM_PULSE_PERIOD_MS   = 1800;
 const unsigned long SUNSET_PULSE_PERIOD_MS  = 3500;
 const unsigned long ENCODER_IDLE_MS         = 400;
 
 // ======================================================
 //                    PROXIMITY CONFIG
 // ======================================================
-const unsigned long DISTANCE_CHECK_INTERVAL_MS = 500;
-const int           DISTANCE_TRIGGER_CM        = 5;
+const unsigned long DISTANCE_CHECK_INTERVAL_MS = 1000;
+const int           DISTANCE_TRIGGER_CM        = 10;
 const uint8_t       PROXIMITY_ALERT_BRIGHTNESS = 250;
 
 // ======================================================
@@ -123,10 +123,10 @@ const unsigned long GLITCH_TWIST_WINDOW_MS = 2000;
 const unsigned long GLITCH_ACTIVE_TWIST_MS = 500;
 
 // Heartbeat timing
-const unsigned long GLITCH_BEAT_PULSE_MS         = 120;   // each pulse ON duration
-const unsigned long GLITCH_BEAT_GAP_MS           = 150;  // gap between the two pulses
-const unsigned long GLITCH_BEAT_PAUSE_MS         = 500;  // pause after ba-bump (was GLITCH_LIGHT_MAX_MS range)
-const unsigned long GLITCH_BEAT_PAUSE_CHAOTIC_MS = 350;  // shorter pause in chaotic mode (was GLITCH_CHAOTIC range)
+const unsigned long GLITCH_BEAT_PULSE_MS         = 200;   // each pulse ON duration
+const unsigned long GLITCH_BEAT_GAP_MS           = 200;  // gap between the two pulses
+const unsigned long GLITCH_BEAT_PAUSE_MS         = 700;  // pause after ba-bump (was GLITCH_LIGHT_MAX_MS range)
+const unsigned long GLITCH_BEAT_PAUSE_CHAOTIC_MS = 40;  // shorter pause in chaotic mode (was GLITCH_CHAOTIC range)
 
 // Sunset-colour flash durations (during active twist AND post-nth-twist idle)
 const unsigned long GLITCH_FLASH_MIN_MS = 150;
@@ -468,6 +468,10 @@ class LightningEffect {
       else if (cmd == "off")             lightsOff = true;
       else if (cmd == "on")              lightsOff = false;
     }
+
+    bool isStormMode() {
+       return stormActive && !glitchMode;
+      }
 
   // ====================================================
   private:
@@ -850,6 +854,9 @@ void setup() {
   pinMode(outputA2, INPUT);
   pinMode(outputB2, INPUT);
 
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
   delay(50);
   enc1ALastState = digitalRead(outputA1);
   enc2ALastState = digitalRead(outputA2);
@@ -889,7 +896,7 @@ void loop() {
   if (enc2AState != enc2ALastState) storm.notifyEncoderTurn(2);
   enc2ALastState = enc2AState;
 
-  if (millis() - lastDistanceCheckMs >= DISTANCE_CHECK_INTERVAL_MS) {
+  if (storm.isStormMode() && millis() - lastDistanceCheckMs >= DISTANCE_CHECK_INTERVAL_MS) {
   lastDistanceCheckMs = millis();
 
   digitalWrite(TRIG_PIN, LOW);
@@ -898,12 +905,11 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
 
-  long duration = pulseIn(ECHO_PIN, HIGH);
-  long dist     = duration * 0.034 / 2;
-  bool nowAlert = dist <= DISTANCE_TRIGGER_CM;
+  unsigned long duration = pulseIn(ECHO_PIN, HIGH, 30000);  // 30ms timeout
+  long dist = (duration == 0) ? 999 : duration * 0.034 / 2;
+  Serial.println(dist);
 
-  Serial.print(dist);
-  Serial.println(" cm");
+  bool nowAlert = dist <= DISTANCE_TRIGGER_CM;
 
   if (nowAlert != lastProximityAlert) {
     Serial.println(nowAlert ? "close" : "far");
