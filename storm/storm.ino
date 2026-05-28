@@ -35,13 +35,13 @@ const uint8_t  MAX_INTENSITY_LEVEL             = 30;
 const uint8_t  INTENSITY_STEP_SIZE             = 1;
 
 const uint8_t  BASE_MIN_BRIGHTNESS             = 0;
-const uint8_t  BASE_MAX_BRIGHTNESS             = 10;
+const uint8_t  BASE_MAX_BRIGHTNESS             = 20;
 const uint8_t  BRIGHTNESS_PER_LEVEL            = 6;   // 5+30×7 = 215 at max
 const uint8_t  ABS_MAX_BRIGHTNESS              = 255;
 
-const unsigned long BASE_MIN_INTERVAL          = 30;
+const unsigned long BASE_MIN_INTERVAL          = 80;
 const unsigned long BASE_MAX_INTERVAL          = 800;
-const int      INTERVAL_DECREASE_PER_LEVEL     = 20;  // 800-30×20 = 200ms at max
+const int      INTERVAL_DECREASE_PER_LEVEL     = 15;  // 800-30×20 = 200ms at max
 
 const uint8_t  BASE_CALM_CHANCE                = 95;  // 5% crackle at level 0
 const uint8_t  CALM_CHANCE_REDUCTION_PER_LEVEL = 2;   // 35% calm at max → 65% crackle
@@ -72,13 +72,13 @@ const uint8_t       AUTO_FLASH_MAX_CHANCE  = 55;  // % at full intensity
 // ======================================================
 
 const uint8_t  SUNSET_MAX_BRIGHTNESS  = 200;
-const int          ENCODER_FULL_STEPS      = 300;
+const int          ENCODER_FULL_STEPS      = 180;
 const int          ENCODER_SINGLE_STEP     = 0;
 const int          ENCODER_DUAL_STEP       = 1;
 const unsigned long DUAL_ENCODER_WINDOW_MS = 150;
 
 // How far the hue map shifts per encoder step (drives colour flow)
-const float SUNSET_HUE_PER_STEP = 0.01f;
+const float SUNSET_HUE_PER_STEP = 0.02f;
 // How many palette units span the full LED strip
 const float SUNSET_LED_SPREAD   = 5.0f;
 
@@ -112,11 +112,11 @@ const uint8_t       PROXIMITY_ALERT_BRIGHTNESS = 180;
 const uint8_t GLITCH_BRIGHTNESS = 220;
 
 // Number of encoder twists to complete the glitch stage
-const uint8_t GLITCH_N_TWISTS = 4;
+const uint8_t GLITCH_N_TWISTS = 8;
 
 // Twist detection: cumulative absolute encoder ticks within a time window
-const int          GLITCH_TWIST_TICKS      = 40;
-const unsigned long GLITCH_TWIST_WINDOW_MS = 2000;
+const int          GLITCH_TWIST_TICKS      = 25;
+const unsigned long GLITCH_TWIST_WINDOW_MS = 1800;
 
 // How soon after the last tick the encoder counts as "actively twisting"
 const unsigned long GLITCH_ACTIVE_TWIST_MS = 500;
@@ -132,8 +132,8 @@ const unsigned long GLITCH_FLASH_MIN_MS = 150;
 const unsigned long GLITCH_FLASH_MAX_MS = 400;
 
 // Gap between idle sunset flashes once glitch stage is complete
-const unsigned long GLITCH_IDLE_SUNSET_MIN_MS = 3000;
-const unsigned long GLITCH_IDLE_SUNSET_MAX_MS = 6000;
+const unsigned long GLITCH_IDLE_SUNSET_MIN_MS = 500;
+const unsigned long GLITCH_IDLE_SUNSET_MAX_MS = 1000;
 
 // Orangey-pink sunset colour for glitch flashes (palette index 2)
 const uint8_t GLITCH_SUNSET_COLOUR_R = 255;
