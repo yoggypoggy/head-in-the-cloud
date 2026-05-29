@@ -416,6 +416,7 @@ class LightningEffect {
       if (accum >= GLITCH_TWIST_TICKS) {
         Serial.println("twist");
         glitchTwistsDone++;
+        Serial.println(glitchTwistsDone);
         accum     = 0;
         winActive = false;
 
