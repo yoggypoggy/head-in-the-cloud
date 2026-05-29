@@ -548,6 +548,7 @@ class LightningEffect {
 
       // ---- GLITCH COMPLETE: encoder-driven sunset transition ----
       if (glitchComplete) {
+        Serial.println("complete");
         float progress = constrain(encoderPosition, 0, ENCODER_FULL_STEPS)
                          / (float)ENCODER_FULL_STEPS;
 
